@@ -36,15 +36,18 @@ def consulta_credito():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         
-        cursor.execute("SELECT * FROM tbl_cuentas_estrategica WHERE id_credito = %s", (id_credito,))
+        cursor.execute("""
+            SELECT id_credito, nombre_cliente, gestor, monto, saldo_capital,
+                   avance_capital, opciones, bono, estatus
+            FROM tbl_cuentas_estrategica
+            WHERE id_credito = %s
+        """, (id_credito,))
         result = cursor.fetchone()
         cursor.close()
         conn.close()
 
         if not result:
             return jsonify({"error": "Crédito no encontrado"}), 404
-        
-        result.pop('id', None)  # Quitar autoincrement si existe
 
         return jsonify({"data": result}), 200
 

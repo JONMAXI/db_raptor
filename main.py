@@ -1,8 +1,10 @@
+from flask import Flask, request, jsonify
 import mysql.connector
 from mysql.connector import Error
-from flask import jsonify
+import os
 
-# Configuración DB y token
+app = Flask(__name__)
+
 db_config = {
     'host': '34.9.147.5',
     'user': 'jonathan',
@@ -13,17 +15,13 @@ db_config = {
 
 VALID_TOKEN = "PWOYmGdUIMglEdhBZi0yuPXTADI5TeYoRCrJPB7QcmQMElkWMYsJhkKD2EUPUCFZ"
 
-def consulta_credito(request):
-    # Validar método POST
-    if request.method != 'POST':
-        return jsonify({"error": "Método no permitido"}), 405
-    
-    # Validar token en header Authorization
+@app.route('/consulta_credito', methods=['POST'])
+def consulta_credito():
     auth_header = request.headers.get('Authorization')
     if not auth_header or auth_header != f"Bearer {VALID_TOKEN}":
         return jsonify({"error": "No autorizado"}), 401
-    
-    data = request.get_json(silent=True)
+
+    data = request.get_json()
     if not data or 'id_credito' not in data:
         return jsonify({"error": "Falta id_credito en el cuerpo"}), 400
 
@@ -41,9 +39,13 @@ def consulta_credito(request):
         if not result:
             return jsonify({"error": "Crédito no encontrado"}), 404
         
-        result.pop('id', None)  # Remover autoincrement si existe
+        result.pop('id', None)
 
         return jsonify({"data": result}), 200
 
     except Error as e:
         return jsonify({"error": "Error en la base de datos", "detalle": str(e)}), 500
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)

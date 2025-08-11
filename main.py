@@ -14,6 +14,9 @@ db_config = {
 
 VALID_TOKEN = os.environ.get('VALID_TOKEN')
 
+# URL fija por el momento
+IMAGEN_URL = "https://maxikash.mx/cdn/shop/files/Cr_dito_Maxikash.png?v=1751590648&width=1950"
+
 @app.route('/consulta_credito', methods=['POST'])
 def consulta_credito():
     if not request.content_type or 'application/json' not in request.content_type:
@@ -46,6 +49,9 @@ def consulta_credito():
         if not result:
             return jsonify({"estatus": 404, "error": "Teléfono no encontrado"}), 404
 
+        # Agregar campo "url" al resultado
+        result["url"] = IMAGEN_URL
+
         return jsonify({"estatus": 200, "data": result}), 200
 
     except Error as e:
@@ -53,7 +59,10 @@ def consulta_credito():
 
 @app.route('/')
 def home():
-    return jsonify({"estatus": 200, "mensaje": "Servicio activo. Usa POST /consulta_credito con JSON para consultar por teléfono."}), 200
+    return jsonify({
+        "estatus": 200,
+        "mensaje": "Servicio activo. Usa POST /consulta_credito con JSON para consultar por teléfono."
+    }), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))

@@ -24,10 +24,10 @@ def consulta_credito():
         return jsonify({"estatus": 401, "error": "No autorizado"}), 401
 
     data = request.get_json(silent=True)
-    if not data or 'id_credito' not in data:
-        return jsonify({"estatus": 400, "error": "Falta id_credito en el cuerpo"}), 400
+    if not data or 'telefono' not in data:
+        return jsonify({"estatus": 400, "error": "Falta telefono en el cuerpo"}), 400
 
-    id_credito = data['id_credito']
+    telefono = data['telefono']
 
     try:
         conn = mysql.connector.connect(**db_config)
@@ -37,14 +37,14 @@ def consulta_credito():
             SELECT id_credito, nombre_cliente, gestor, monto, saldo_capital,
                    avance_capital, opciones, bono
             FROM tbl_cuentas_estrategica
-            WHERE id_credito = %s
-        """, (id_credito,))
+            WHERE telefono = %s
+        """, (telefono,))
         result = cursor.fetchone()
         cursor.close()
         conn.close()
 
         if not result:
-            return jsonify({"estatus": 404, "error": "Crédito no encontrado"}), 404
+            return jsonify({"estatus": 404, "error": "Teléfono no encontrado"}), 404
 
         return jsonify({"estatus": 200, "data": result}), 200
 
@@ -53,7 +53,7 @@ def consulta_credito():
 
 @app.route('/')
 def home():
-    return jsonify({"estatus": 200, "mensaje": "Servicio activo. Usa POST /consulta_credito con JSON para consultar."}), 200
+    return jsonify({"estatus": 200, "mensaje": "Servicio activo. Usa POST /consulta_credito con JSON para consultar por teléfono."}), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))

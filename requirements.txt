@@ -1,2 +1,5 @@
-flask
+Flask
 mysql-connector-python
+google-cloud-storage
+Pillow
+requests

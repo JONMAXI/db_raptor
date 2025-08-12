@@ -1,17 +1,20 @@
-# Usa imagen oficial Python
-FROM python:3.9-slim
+FROM python:3.10-slim
 
-# Establece directorio de trabajo
-WORKDIR /app
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copia archivos
-COPY requirements.txt requirements.txt
+# Instalar pip packages
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copiar código
+COPY . /app
+WORKDIR /app
 
-# Expone el puerto que usará Cloud Run
+# Exponer puerto
 EXPOSE 8080
 
-# Ejecuta la app
-CMD ["python", "main.py"]
+# Ejecutar la app
+CMD ["python", "app.py"]

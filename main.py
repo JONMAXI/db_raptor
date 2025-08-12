@@ -20,9 +20,10 @@ db_config = {
 }
 
 VALID_TOKEN = os.environ.get('VALID_TOKEN')
-BUCKET_NAME = "storage_raptor"  # Ajusta si tu bucket tiene otro nombre
+BUCKET_NAME = "storage_raptor"  # Nombre de tu bucket
 
 def generar_imagen(data):
+    # Descargar template
     template_url = "https://storage.googleapis.com/storage_raptor/template.jpeg"
     response = requests.get(template_url)
     response.raise_for_status()
@@ -91,8 +92,8 @@ def subir_a_bucket(file_bytes, filename):
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(filename)
     blob.upload_from_file(file_bytes, content_type='image/png')
-    blob.make_public()
-    return blob.public_url
+    # No usar make_public porque el bucket tiene Uniform bucket-level access habilitado
+    return f"https://storage.googleapis.com/{BUCKET_NAME}/{filename}"
 
 @app.route('/consulta_credito', methods=['POST'])
 def consulta_credito():
@@ -138,9 +139,8 @@ def consulta_credito():
 
 @app.route('/')
 def home():
-    return jsonify({"estatus": 200, "mensaje": "Servicio activo"})
+    return jsonify({"estatus": 200, "mensaje": "Servicio activo"}), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
-    # Evitar reloader para Cloud Run y poner debug False
-    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+    app.run(host='0.0.0.0', port=port)

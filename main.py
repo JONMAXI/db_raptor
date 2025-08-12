@@ -163,12 +163,21 @@ def actualiza_respuesta():
         """, (respuesta, telefono))
         conn.commit()
         filas_afectadas = cursor.rowcount
-        cursor.close()
-        conn.close()
 
         if filas_afectadas == 0:
-            return jsonify({"estatus": 404, "error": "Teléfono no encontrado"}), 404
+            # Verificar si el teléfono existe aunque no hubo cambio
+            cursor.execute("SELECT 1 FROM tbl_cuentas_estrategica WHERE telefono_gestor = %s", (telefono,))
+            existe = cursor.fetchone()
+            cursor.close()
+            conn.close()
 
+            if not existe:
+                return jsonify({"estatus": 404, "error": "Teléfono no encontrado"}), 404
+            else:
+                return jsonify({"estatus": 200, "mensaje": f"No hubo cambio, respuesta ya es '{respuesta}' para {telefono}"}), 200
+
+        cursor.close()
+        conn.close()
         return jsonify({"estatus": 200, "mensaje": f"Respuesta actualizada correctamente para {telefono}"}), 200
 
     except Error as e:

@@ -21,7 +21,6 @@ db_config = {
 
 VALID_TOKEN = os.environ.get('VALID_TOKEN')
 BUCKET_NAME = "storage_raptor"  # Nombre de tu bucket
-
 def generar_imagen(data):
     template_url = "https://storage.googleapis.com/storage_raptor/template.jpeg"
     response = requests.get(template_url)
@@ -34,8 +33,10 @@ def generar_imagen(data):
 
     draw = ImageDraw.Draw(img_base)
 
-    font = ImageFont.load_default()
-    font_nombre = ImageFont.load_default()
+    # Carga la fuente WesternCowboy con tamaños diferentes
+    font_path = "WesternCowboy.ttf"  # Ajusta la ruta si es necesario
+    font_nombre = ImageFont.truetype(font_path, size=80)  # Para el nombre del cliente
+    font = ImageFont.truetype(font_path, size=46)         # Para opciones y bonos
 
     text_fill = (0, 0, 0)
     shadow_fill = (180, 180, 180)
@@ -48,10 +49,14 @@ def generar_imagen(data):
     for line in textwrap.wrap(nombre_cliente, width=60):
         bbox = font_nombre.getbbox(line)
         text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
         x = x_center - text_width // 2
+
+        # Sombra
         draw.text((x + 2, current_y + 2), line, font=font_nombre, fill=shadow_fill)
+        # Texto
         draw.text((x, current_y), line, font=font_nombre, fill=text_fill)
-        current_y += bbox[3] - bbox[1] + 15
+        current_y += text_height + 15
 
     current_y += 40
 

@@ -97,7 +97,7 @@ def subir_a_bucket(file_bytes, filename):
 def consulta_credito():
     if not request.content_type or 'application/json' not in request.content_type:
         return jsonify({"estatus": 400, "error": "Content-Type debe ser application/json"}), 400
-    
+
     auth_header = request.headers.get('Authorization')
     if not auth_header or auth_header != f"Bearer {VALID_TOKEN}":
         return jsonify({"estatus": 401, "error": "No autorizado"}), 401
@@ -140,7 +140,7 @@ def consulta_credito():
 def actualiza_respuesta():
     if not request.content_type or 'application/json' not in request.content_type:
         return jsonify({"estatus": 400, "error": "Content-Type debe ser application/json"}), 400
-    
+
     auth_header = request.headers.get('Authorization')
     if not auth_header or auth_header != f"Bearer {VALID_TOKEN}":
         return jsonify({"estatus": 401, "error": "No autorizado"}), 401
@@ -166,15 +166,15 @@ def actualiza_respuesta():
 
         if filas_afectadas == 0:
             # Verificar si el teléfono existe aunque no hubo cambio
-            cursor.execute("SELECT respuesta FROM tbl_cuentas_estrategica WHERE telefono_gestor = %s", (telefono,))
-            fila = cursor.fetchone()
+            cursor.execute("SELECT 1 FROM tbl_cuentas_estrategica WHERE telefono_gestor = %s", (telefono,))
+            existe = cursor.fetchone()
             cursor.close()
             conn.close()
 
-            if not fila:
+            if not existe:
                 return jsonify({"estatus": 404, "error": "Teléfono no encontrado"}), 404
             else:
-                # Ya tiene el mismo valor, respuesta no cambia
+                # Aquí devolver 201 (Created) indicando ya aceptado
                 return jsonify({"estatus": 201, "mensaje": f"Campaña ya aceptada previamente para {telefono}"}), 201
 
         cursor.close()

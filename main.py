@@ -20,7 +20,7 @@ db_config = {
 }
 
 VALID_TOKEN = os.environ.get('VALID_TOKEN')
-BUCKET_NAME = "storage_raptor"  # Tu bucket creado en GCS
+BUCKET_NAME = "storage_raptor"  # Nombre de tu bucket
 
 def generar_imagen(data):
     # Descargar template
@@ -34,9 +34,11 @@ def generar_imagen(data):
     bonos = [data.get('bono_opcion_1', ''), data.get('bono_opcion_2', ''), data.get('bono_opcion_3', '')]
 
     draw = ImageDraw.Draw(img_base)
-    font_path = "arialbd.ttf"  # Asegúrate que esté disponible en el entorno
-    font = ImageFont.truetype(font_path, size=46)
-    font_nombre = ImageFont.truetype(font_path, size=80)
+
+    # Usar fuente por defecto para evitar problemas en el contenedor
+    font = ImageFont.load_default()
+    font_nombre = ImageFont.load_default()
+
     text_fill = (0, 0, 0)
     shadow_fill = (180, 180, 180)
     color_cafe = (101, 67, 33)

@@ -20,10 +20,9 @@ db_config = {
 }
 
 VALID_TOKEN = os.environ.get('VALID_TOKEN')
-BUCKET_NAME = "storage_raptor"  # Nombre de tu bucket
+BUCKET_NAME = "storage_raptor"  # Ajusta si tu bucket tiene otro nombre
 
 def generar_imagen(data):
-    # Descargar template
     template_url = "https://storage.googleapis.com/storage_raptor/template.jpeg"
     response = requests.get(template_url)
     response.raise_for_status()
@@ -139,8 +138,9 @@ def consulta_credito():
 
 @app.route('/')
 def home():
-    return jsonify({"estatus": 200, "mensaje": "Servicio activo"}), 200
+    return jsonify({"estatus": 200, "mensaje": "Servicio activo"})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port)
+    # Evitar reloader para Cloud Run y poner debug False
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)

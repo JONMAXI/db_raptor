@@ -166,15 +166,16 @@ def actualiza_respuesta():
 
         if filas_afectadas == 0:
             # Verificar si el teléfono existe aunque no hubo cambio
-            cursor.execute("SELECT 1 FROM tbl_cuentas_estrategica WHERE telefono_gestor = %s", (telefono,))
-            existe = cursor.fetchone()
+            cursor.execute("SELECT respuesta FROM tbl_cuentas_estrategica WHERE telefono_gestor = %s", (telefono,))
+            fila = cursor.fetchone()
             cursor.close()
             conn.close()
 
-            if not existe:
+            if not fila:
                 return jsonify({"estatus": 404, "error": "Teléfono no encontrado"}), 404
             else:
-                return jsonify({"estatus": 200, "mensaje": f"No hubo cambio, respuesta ya es '{respuesta}' para {telefono}"}), 200
+                # Ya tiene el mismo valor, respuesta no cambia
+                return jsonify({"estatus": 201, "mensaje": f"Campaña ya aceptada previamente para {telefono}"}), 201
 
         cursor.close()
         conn.close()

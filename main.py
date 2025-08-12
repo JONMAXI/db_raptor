@@ -23,7 +23,6 @@ VALID_TOKEN = os.environ.get('VALID_TOKEN')
 BUCKET_NAME = "storage_raptor"  # Nombre de tu bucket
 
 def generar_imagen(data):
-    # Descargar template
     template_url = "https://storage.googleapis.com/storage_raptor/template.jpeg"
     response = requests.get(template_url)
     response.raise_for_status()
@@ -35,7 +34,6 @@ def generar_imagen(data):
 
     draw = ImageDraw.Draw(img_base)
 
-    # Usar fuente por defecto para evitar problemas en el contenedor
     font = ImageFont.load_default()
     font_nombre = ImageFont.load_default()
 
@@ -92,7 +90,7 @@ def subir_a_bucket(file_bytes, filename):
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(filename)
     blob.upload_from_file(file_bytes, content_type='image/png')
-    # No usar make_public porque el bucket tiene Uniform bucket-level access habilitado
+    # No usar make_public con Uniform bucket-level access habilitado
     return f"https://storage.googleapis.com/{BUCKET_NAME}/{filename}"
 
 @app.route('/consulta_credito', methods=['POST'])
@@ -137,9 +135,51 @@ def consulta_credito():
     except Exception as e:
         return jsonify({"estatus": 500, "error": f"Error general: {str(e)}"}), 500
 
+# --- Actualiza respuesta ---
+@app.route('/actualiza_respuesta', methods=['POST'])
+def actualiza_respuesta():
+    if not request.content_type or 'application/json' not in request.content_type:
+        return jsonify({"estatus": 400, "error": "Content-Type debe ser application/json"}), 400
+    
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or auth_header != f"Bearer {VALID_TOKEN}":
+        return jsonify({"estatus": 401, "error": "No autorizado"}), 401
+
+    data = request.get_json(silent=True)
+    if not data or 'telefono' not in data or 'respuesta' not in data:
+        return jsonify({"estatus": 400, "error": "Faltan telefono o respuesta en el cuerpo"}), 400
+
+    telefono = data['telefono']
+    respuesta = data['respuesta']
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE tbl_cuentas_estrategica
+            SET respuesta = %s
+            WHERE telefono_gestor = %s
+        """, (respuesta, telefono))
+        conn.commit()
+        filas_afectadas = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if filas_afectadas == 0:
+            return jsonify({"estatus": 404, "error": "Teléfono no encontrado"}), 404
+
+        return jsonify({"estatus": 200, "mensaje": f"Respuesta actualizada correctamente para {telefono}"}), 200
+
+    except Error as e:
+        return jsonify({"estatus": 500, "error": "Error en la base de datos", "detalle": str(e)}), 500
+
 @app.route('/')
 def home():
-    return jsonify({"estatus": 200, "mensaje": "Servicio activo"}), 200
+    return jsonify({
+        "estatus": 200,
+        "mensaje": "Servicio activo. Usa POST /consulta_credito o /actualiza_respuesta con JSON."
+    }), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))

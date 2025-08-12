@@ -180,7 +180,7 @@ def actualiza_respuesta():
                 return jsonify({"estatus": 404, "error": "Teléfono no encontrado"}), 404
             else:
                 # Aquí devolver 201 (Created) indicando ya aceptado
-                return jsonify({"estatus": 201, "mensaje": f"Campaña ya aceptada previamente para {telefono}"}), 201
+                return jsonify({"estatus": 200, "mensaje": f"Campaña ya aceptada previamente para {telefono}"}), 201
 
         cursor.close()
         conn.close()

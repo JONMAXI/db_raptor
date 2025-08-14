@@ -35,15 +35,15 @@ def generar_imagen(data):
 
     # Carga la fuente WesternCowboy con tamaños diferentes
     font_path = "WesternCowboy.ttf"  # Ajusta la ruta si es necesario
-    font_nombre = ImageFont.truetype(font_path, size=80)  # Para el nombre del cliente
-    font = ImageFont.truetype(font_path, size=46)         # Para opciones y bonos
+    font_nombre = ImageFont.truetype(font_path, size=70)  # Para el nombre del cliente
+    font = ImageFont.truetype(font_path, size=40)         # Para opciones y bonos
 
     text_fill = (0, 0, 0)
     shadow_fill = (180, 180, 180)
     color_cafe = (101, 67, 33)
 
     x_center = img_base.width // 2
-    start_y = 900
+    start_y = 820
     current_y = start_y
 
     for line in textwrap.wrap(nombre_cliente, width=60):
@@ -58,7 +58,7 @@ def generar_imagen(data):
         draw.text((x, current_y), line, font=font_nombre, fill=text_fill)
         current_y += text_height + 15
 
-    current_y += 40
+    current_y += 30
 
     col_opciones_center = img_base.width // 4
     col_bonos_center = (img_base.width * 3) // 4

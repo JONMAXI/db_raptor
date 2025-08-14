@@ -43,7 +43,7 @@ def generar_imagen(data):
     color_cafe = (101, 67, 33)
 
     x_center = img_base.width // 2
-    start_y = 820
+    start_y = 835
     current_y = start_y
 
     for line in textwrap.wrap(nombre_cliente, width=60):
